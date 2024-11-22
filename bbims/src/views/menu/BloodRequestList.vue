@@ -58,7 +58,7 @@ function exportCSV() {
                 <template #start>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <div class="p-input-icon-left">
-                            <InputText v-model="filters['global'].value" placeholder="Search Blood..." />
+                            <InputText v-model="filters['global'].value" placeholder="Search ..." />
                             <i class="pi pi-search px-3" />
                         </div>
                     </div>

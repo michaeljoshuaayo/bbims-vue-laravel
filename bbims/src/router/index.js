@@ -14,12 +14,12 @@ const router = createRouter({
                     component: () => import('@/views/Dashboard.vue')
                 },
                 {
-                    path: '/menu/RISForm',
+                    path: '/menu/RIS-Form',
                     name: 'RISForm',
                     component: () => import('@/views/menu/RISForm.vue')
                 },
                 {
-                    path: '/menu/bloodrequests',
+                    path: '/menu/blood-requests',
                     name: 'table',
                     component: () => import('@/views/menu/BloodRequestList.vue')
                 },
@@ -34,9 +34,14 @@ const router = createRouter({
                     component: () => import('@/views/menu/BloodRequestTimeline.vue')
                 },
                 {
-                    path: '/pages/crud',
-                    name: 'crud',
-                    component: () => import('@/views/pages/Crud.vue')
+                    path: '/pages/blood-inventory',
+                    name: 'bloodinventory',
+                    component: () => import('@/views/pages/BloodInventory.vue')
+                },
+                {
+                    path: '/menu/facilities',
+                    name: 'facilities',
+                    component: () => import('@/views/menu/Facilities.vue')
                 }
             ]
         },

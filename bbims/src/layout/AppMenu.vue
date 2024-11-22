@@ -11,10 +11,12 @@ const model = ref([
     {
         label: 'Menu',
         items: [
-            { label: 'RIS Form', icon: 'pi pi-fw pi-id-card', to: '/menu/RISForm' },
+            { label: 'RIS Form', icon: 'pi pi-fw pi-id-card', to: '/menu/RIS-Form' },
             { label: 'Blood Request Status', icon: 'pi pi-fw pi-calendar', to: '/menu/timeline' },
-            { label: 'Blood Requests', icon: 'pi pi-fw pi-table', to: '/menu/bloodrequests' },
-            { label: 'Analytics', icon: 'pi pi-fw pi-chart-bar', to: '/menu/charts' }
+            { label: 'Blood Requests', icon: 'pi pi-fw pi-envelope', to: '/menu/blood-requests' },
+            { label: 'Analytics', icon: 'pi pi-fw pi-chart-bar', to: '/menu/charts' },
+            { label: 'Facilities', icon: 'pi pi-fw pi-building', to: '/menu/facilities' }
+            
         ]
     },
     {
@@ -25,10 +27,12 @@ const model = ref([
             {
                 label: 'Blood Inventory',
                 icon: 'pi pi-fw pi-pencil',
-                to: '/pages/crud'
+                to: '/pages/blood-inventory'
             }
         ]
     }
+    
+
 ]);
 </script>
 

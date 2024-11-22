@@ -90,12 +90,12 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
 // Example data, replace with actual data fetching logic
 const bloodArrivalsToday = ref([
     { units: 10, facility: 'Sorsogon Provincial Hospital' },
-    { units: 5, facility: 'Manila General Hospital' }
+    { units: 5, facility: 'BRTTH' }
 ]);
 
 const bloodArrivalsLastWeek = ref([
-    { units: 20, facility: 'Cebu City Hospital' },
-    { units: 15, facility: 'Davao Regional Medical Center' }
+    { units: 20, facility: 'Daraga Doctors Hospital' },
+    { units: 15, facility: 'Camalig Provincial Hospital' }
 ]);
 </script>
 
@@ -244,7 +244,7 @@ const bloodArrivalsLastWeek = ref([
                             <i class="pi pi-truck !text-xl text-red-500"></i>
                         </div>
                         <span class="text-surface-900 dark:text-surface-0 leading-normal">
-                            <span class="text-primary font-bold">5</span> units of blood arrived from Manila General Hospital.
+                            <span class="text-primary font-bold">5</span> units of blood arrived from Daraga Doctors Hospital.
                         </span>
                     </li>
                 </ul>
@@ -255,7 +255,7 @@ const bloodArrivalsLastWeek = ref([
                             <i class="pi pi-truck !text-xl text-green-500"></i>
                         </div>
                         <span class="text-surface-900 dark:text-surface-0 leading-normal">
-                            <span class="text-primary font-bold">20</span> units of blood arrived from Cebu City Hospital.
+                            <span class="text-primary font-bold">20</span> units of blood arrived from Camalig Provincial Hospital.
                         </span>
                     </li>
                     <li class="flex items-center py-2 border-b border-surface">
@@ -263,7 +263,7 @@ const bloodArrivalsLastWeek = ref([
                             <i class="pi pi-truck !text-xl text-purple-500"></i>
                         </div>
                         <span class="text-surface-900 dark:text-surface-0 leading-normal">
-                            <span class="text-primary font-bold">15</span> units of blood arrived from Davao Regional Medical Center.
+                            <span class="text-primary font-bold">15</span> units of blood arrived from Sorsogon Provincial Hospital .
                         </span>
                     </li>
                 </ul>

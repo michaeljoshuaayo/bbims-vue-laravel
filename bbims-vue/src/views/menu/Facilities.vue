@@ -132,14 +132,6 @@ async function deleteProduct() {
     }
 }
 
-function exportCSV() {
-    dt.value.exportCSV();
-}
-
-function importCSV() {
-    toast.add({ severity: 'info', summary: 'Info', detail: 'Not implemented yet', life: 3000 });
-}
-
 function confirmDeleteSelected() {
     deleteProductsDialog.value = true;
 }
@@ -161,138 +153,11 @@ async function deleteSelectedProducts() {
 
 <template>
     <div>
-        <div class="font-semibold text-2xl mb-6">Blood Summary</div>
-        <div class="grid grid-cols-12 gap-8 mb-6">
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">A+</div>
-                            <span class="block text-muted-color font-medium mb-4">125 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">24 new </span>
-                    <span class="text-muted-color">since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">B+</div>
-                            <span class="block text-muted-color font-medium mb-4">159 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">19 new</span>
-                    <span class="text-muted-color"> since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">AB+</div>
-                            <span class="block text-muted-color font-medium mb-4">99 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">25 new </span>
-                    <span class="text-muted-color">since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">O+</div>
-                            <span class="block text-muted-color font-medium mb-4">152 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">24 new</span>
-                    <span class="text-muted-color"> since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">A-</div>
-                            <span class="block text-muted-color font-medium mb-4">89 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">24 new </span>
-                    <span class="text-muted-color">since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">B-</div>
-                            <span class="block text-muted-color font-medium mb-4">52 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">11 new </span>
-                    <span class="text-muted-color">distributed since last week</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">AB-</div>
-                            <span class="block text-muted-color font-medium mb-4">67 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">2 new </span>
-                    <span class="text-muted-color">since last 24 hours</span>
-                </div>
-            </div>
-            <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">O-</div>
-                            <span class="block text-muted-color font-medium mb-4">32 units in stock</span>
-                        </div>
-                        <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                            <i class="pi pi-plus text-green-500 !text-xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-primary font-medium">12 new </span>
-                    <span class="text-muted-color"> since last 24 hours</span>
-                </div>
-            </div>
-        </div>
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Discard" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
-                </template>
-                <template #end>
-                    <Button label="Import from CSV file" icon="pi pi-download" severity="secondary" @click="importCSV($event)" class="mr-2" />
-                    <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                    <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
                 </template>
             </Toolbar>
             <DataTable
@@ -305,16 +170,16 @@ async function deleteSelectedProducts() {
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Facilities"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Blood Products</h4>
+                        <h4 class="m-0">Manage Facilities</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Search Blood..." />
+                            <InputText v-model="filters['global'].value" placeholder="Search Facility..." />
                         </IconField>
                     </div>
                 </template>
@@ -366,7 +231,7 @@ async function deleteSelectedProducts() {
         <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="product">Are you sure you want to discard <b>{{ product.bloodSerialNumber }}</b>?</span>
+                <span v-if="product">Are you sure you want to delete <b>{{ product.bloodSerialNumber }}</b>?</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteProductDialog = false" />
@@ -377,7 +242,7 @@ async function deleteSelectedProducts() {
         <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="product">Are you sure you want to discard the selected products?</span>
+                <span v-if="product">Are you sure you want to delete the selected products?</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />

@@ -12,3 +12,4 @@ Route::post('/blood-inventory', [BloodInventoryController::class, 'store']);
 Route::get('/blood-inventory/{id}', [BloodInventoryController::class, 'show']);
 Route::put('/blood-inventory/{id}', [BloodInventoryController::class, 'update']);
 Route::delete('/blood-inventory/{id}', [BloodInventoryController::class, 'destroy']);
+Route::post('/blood-inventory/delete-multiple', [BloodInventoryController::class, 'deleteMultiple']);

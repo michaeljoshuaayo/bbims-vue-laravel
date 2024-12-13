@@ -52,4 +52,11 @@ class BloodInventoryController extends Controller
         BloodInventory::destroy($id);
         return response()->json(null, 204);
     }
+
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->input('ids');
+        BloodInventory::whereIn('id', $ids)->delete();
+        return response()->json(null, 204);
+    }
 }

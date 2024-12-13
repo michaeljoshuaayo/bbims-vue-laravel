@@ -1,9 +1,33 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axiosInstance from '@/axios';
+import { useToast } from 'primevue/usetoast';
+
 const email = ref('');
 const password = ref('');
 const checked = ref(false);
+const toast = useToast();
+const router = useRouter();
+
+const handleLogin = async () => {
+    try {
+        const response = await axiosInstance.post('/login', {
+            email: email.value,
+            password: password.value,
+            remember: checked.value
+        });
+
+        if (response.status === 200) {
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 });
+            router.push('/');
+        }
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to log in. Please check your credentials and try again.', life: 3000 });
+        console.error('Error logging in:', error);
+    }
+};
 </script>
 
 <template>
@@ -35,7 +59,7 @@ const checked = ref(false);
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                         </div>
-                        <Button label="Sign In" class="w-full" as="router-link" to="/"></Button>
+                        <Button label="Sign In" class="w-full" @click="handleLogin"></Button>
                     </div>
                 </div>
             </div>

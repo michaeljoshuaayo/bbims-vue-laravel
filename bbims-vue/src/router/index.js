@@ -39,9 +39,9 @@ const router = createRouter({
                     component: () => import('@/views/pages/BloodInventory.vue')
                 },
                 {
-                    path: '/menu/facilities',
-                    name: 'facilities',
-                    component: () => import('@/views/menu/Facilities.vue')
+                    path: '/menu/user-list',
+                    name: 'userlist',
+                    component: () => import('@/views/menu/UserList.vue')
                 }
             ]
         },

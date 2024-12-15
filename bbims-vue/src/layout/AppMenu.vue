@@ -15,7 +15,7 @@ const model = ref([
             { label: 'Blood Request Status', icon: 'pi pi-fw pi-calendar', to: '/menu/timeline' },
             { label: 'Blood Requests', icon: 'pi pi-fw pi-envelope', to: '/menu/blood-requests' },
             { label: 'Analytics', icon: 'pi pi-fw pi-chart-bar', to: '/menu/charts' },
-            { label: 'Facilities', icon: 'pi pi-fw pi-building', to: '/menu/facilities' }
+            { label: 'User List', icon: 'pi pi-fw pi-building', to: '/menu/user-list' }
             
         ]
     },

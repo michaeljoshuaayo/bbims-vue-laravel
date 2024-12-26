@@ -9,6 +9,7 @@ class UserController extends Controller
 {
     public function index()
     {
+        // return auth()->user;
         return User::all();
     }
 

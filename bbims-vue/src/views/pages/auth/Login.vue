@@ -4,6 +4,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axiosInstance from '@/axios';
 import { useToast } from 'primevue/usetoast';
+import { useAuth } from 'vue-auth3';
+
+const auth = useAuth();
 
 const email = ref('');
 const password = ref('');
@@ -12,21 +15,22 @@ const toast = useToast();
 const router = useRouter();
 
 const handleLogin = async () => {
-    try {
-        const response = await axiosInstance.post('/login', {
+    auth.login({
+        data: {
             email: email.value,
             password: password.value,
-            remember: checked.value
-        });
-
-        if (response.status === 200) {
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 });
-            router.push('/');
-        }
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to log in. Please check your credentials and try again.', life: 3000 });
+        },
+        remember: checked.value,
+    })
+    .then(() => {
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 });
+        router.push('/');
+    })
+    .catch((error) => {
+        const errorMessage = error.response?.data?.message || 'Failed to log in. Please check your credentials and try again.';
+        toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
         console.error('Error logging in:', error);
-    }
+    });
 };
 </script>
 
@@ -65,6 +69,7 @@ const handleLogin = async () => {
             </div>
         </div>
     </div>
+    <Toast />
 </template>
 
 <style scoped>

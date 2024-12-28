@@ -1,25 +1,8 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { onMounted, ref, watch } from 'vue';
-
-
+import { ref} from 'vue';
 
 const role = ref('staff')
 
-const items = ref([
-    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-    { label: 'Remove', icon: 'pi pi-fw pi-trash' }
-]);
-// Example data, replace with actual data fetching logic
-const bloodArrivalsToday = ref([
-    { units: 10, facility: 'Sorsogon Provincial Hospital' },
-    { units: 5, facility: 'BRTTH' }
-]);
-
-const bloodArrivalsLastWeek = ref([
-    { units: 20, facility: 'Daraga Doctors Hospital' },
-    { units: 15, facility: 'Camalig Provincial Hospital' }
-]);
 </script>
 
 <template>
@@ -88,7 +71,7 @@ const bloodArrivalsLastWeek = ref([
             </div>
         </div>
 
-        <div class="col-span-12 xl:col-span-6">
+        <!-- <div class="col-span-12 xl:col-span-6">
             
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Blood Arrivals</div>
@@ -131,6 +114,6 @@ const bloodArrivalsLastWeek = ref([
                     </li>
                 </ul>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLayout } from '@/layout/composables/layout';
 import { useAuth } from 'vue-auth3';
@@ -8,6 +8,7 @@ const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 const auth = useAuth();
 const router = useRouter();
 const showProfileDropdown = ref(false);
+const user = ref(null);
 
 const toggleProfileDropdown = () => {
     showProfileDropdown.value = !showProfileDropdown.value;
@@ -21,6 +22,20 @@ const handleLogout = async () => {
         console.error('Error logging out:', error);
     }
 };
+
+const getUserData = async () => {
+    try {
+        const res = await auth.fetch();
+        console.log('User data:', res.data);
+        user.value = res.data[0];
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+};
+
+onMounted(() => {
+    getUserData();
+});
 </script>
 
 <template>
@@ -58,6 +73,7 @@ const handleLogout = async () => {
                         <button type="button" class="layout-topbar-action" @click="toggleProfileDropdown">
                             <i class="pi pi-user"></i>
                             <span>Profile</span>
+                            <span v-if="user">{{ user.name }}</span>
                         </button>
                         <div v-if="showProfileDropdown" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
                             <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100" @click="handleLogout">

@@ -12,43 +12,43 @@ const routes = [
                 path: '/',
                 name: 'dashboard',
                 component: () => import('@/views/Dashboard.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['admin', 'user', 'staff'] }
             },
             {
                 path: '/menu/RIS-Form',
                 name: 'RISForm',
                 component: () => import('@/views/menu/RISForm.vue'),
-                meta: { auth: true  }
+                meta: { auth: true , roles: ['user'] }
             },
             {
-                path: '/menu/blood-requests',
+                path: '/menu/blood-request-list',
                 name: 'table',
                 component: () => import('@/views/menu/BloodRequestList.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['admin', 'staff'] }
             },
             {
                 path: '/menu/charts',
                 name: 'charts',
                 component: () => import('@/views/menu/ChartDoc.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['admin'] }
             },
             {
                 path: '/menu/timeline',
                 name: 'timeline',
                 component: () => import('@/views/menu/BloodRequestTimeline.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['user'] }
             },
             {   
                 path: 'pages/blood-inventory',
                 name: 'blood-inventory',
                 component: () => import('@/views/pages/BloodInventory.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['admin', 'staff']  }
             },
             {   
                 path: 'menu/user-list',
                 name: 'user-list',
                 component: () => import('@/views/menu/UserList.vue'),
-                meta: { auth: true  }
+                meta: { auth: true, roles: ['admin']  }
             }
 
         ]

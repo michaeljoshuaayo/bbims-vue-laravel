@@ -2,7 +2,6 @@
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axiosInstance from '@/axios';
 import { useToast } from 'primevue/usetoast';
 import { useAuth } from 'vue-auth3';
 
@@ -28,7 +27,7 @@ const handleLogin = async () => {
     })
     .catch((error) => {
         const errorMessage = error.response?.data?.message || 'Failed to log in. Please check your credentials and try again.';
-        toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: errorMessage });
         console.error('Error logging in:', error);
     });
 };

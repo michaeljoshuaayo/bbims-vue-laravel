@@ -19,6 +19,12 @@ const filters = ref({
 const submitted = ref(false);
 const isEditMode = ref(false); 
 
+const roles = ref([
+    { label: 'Admin', value: 'admin' },
+    { label: 'Staff', value: 'staff' },
+    { label: 'User', value: 'user' }
+]);
+
 const fetchUsers = async () => {
     try {
         const response = await api.get('/users'); 
@@ -162,6 +168,7 @@ async function deleteSelectedUsers() {
                 </template>
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="name" header="Name" sortable style="min-width: 12rem"></Column>
+                <Column field="role" header="User Role" sortable style="min-width: 12rem"></Column>
                 <Column field="facility" header="Facility" sortable style="min-width: 12rem"></Column>
                 <Column field="email" header="Email" sortable style="min-width: 12rem"></Column>
                 <Column field="created_at" header="Date Created" sortable style="min-width: 10rem"></Column>
@@ -179,6 +186,11 @@ async function deleteSelectedUsers() {
                     <label for="name" class="block font-bold mb-3">Name</label>
                     <InputText id="name" v-model.trim="user.name" required="true" autofocus :invalid="submitted && !user.name" fluid autocomplete="off" />
                     <small v-if="submitted && !user.name" class="text-red-500">Name is required.</small>
+                </div>
+                <div>
+                    <label for="role" class="block font-bold mb-3">User Role</label>
+                    <Dropdown id="role" v-model="user.role" :options="roles" optionLabel="label" optionValue="value" placeholder="Select a Role" required="true" fluid autocomplete="off" />
+                    <small v-if="submitted && !user.role" class="text-red-500">User Role is required.</small>
                 </div>
                 <div>
                     <label for="facility" class="block font-bold mb-3">Facility</label>

@@ -20,9 +20,9 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'The provided credentials are incorrect.',
+                'message' => 'The provided credentials are incorrect. Try to login again.',
                 'errors' => [
-                    'email' => ['The provided credentials are incorrect.'],
+                    'email' => ['The provided credentials are incorrect. Try to login again.'],
                 ],
             ], 422);
         }
@@ -34,6 +34,7 @@ class AuthController extends Controller
             ->header('Authorization', $token)
             ->header('Access-Control-Expose-Headers', 'Authorization');
     }
+    
 
     public function logout(Request $request)
     {

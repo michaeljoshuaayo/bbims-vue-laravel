@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function index()
     {
-        // return auth()->user;
         return User::all();
     }
 
@@ -20,6 +20,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'facility' => 'nullable|string|max:255',
+            'role' => 'required|string|max:255', 
         ]);
 
         $user = User::create([
@@ -27,9 +28,14 @@ class UserController extends Controller
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']),
             'facility' => $validatedData['facility'],
+            'role' => $validatedData['role'],
         ]);
+    }
 
-        return response()->json($user, 201);
+    public function user()
+    {
+        $user = User::find(auth()->id());
+        return response([$user, 'message' => 'Retrieved successfully'], 200);
     }
 
     public function show($id)
@@ -46,6 +52,7 @@ class UserController extends Controller
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|required|string|min:8',
             'facility' => 'nullable|string|max:255',
+            'role' => 'sometimes|required|string|max:255', 
         ]);
 
         $user->update($validatedData);

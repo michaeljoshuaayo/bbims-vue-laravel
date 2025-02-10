@@ -48,8 +48,17 @@ class BloodRequest extends Model
         'crossmatched_packed_rbc_o_minus',
         'crossmatched_packed_rbc_ab_plus',
         'crossmatched_packed_rbc_ab_minus',
+        'status'
     ];
 
+    public function accept($id)
+{
+    $bloodRequest = BloodRequest::findOrFail($id);
+    $bloodRequest->status = 'Accepted';
+    $bloodRequest->save();
+
+    return response()->json(['message' => 'Blood request accepted successfully'], 200);
+}
     public function requisitionItems()
     {
         return $this->hasMany(RequisitionItem::class);

@@ -43,6 +43,20 @@ const fetchRequisitionItems = async (bloodRequestId) => {
     }
 };
 
+const acceptBloodRequest = async (bloodRequestId) => {
+    try {
+        await api.put(`/blood-requests/${bloodRequestId}/accept`);
+        const index = findIndexById(bloodRequestId);
+        if (index !== -1) {
+            bloodRequests.value[index].status = 'Accepted';
+        }
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Accepted', life: 3000 });
+    } catch (error) {
+        console.error('Error accepting blood request:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to accept blood request', life: 3000 });
+    }
+};
+
 onMounted(() => {
     fetchBloodRequests();
 });
@@ -54,104 +68,26 @@ const formattedBloodRequests = computed(() => {
     }));
 });
 
-function openNew() {
-    bloodRequest.value = {}; 
-    submitted.value = false;
-    isEditMode.value = false; 
-    bloodRequestDialog.value = true;
-}
 
 function hideDialog() {
     bloodRequestDialog.value = false;
     submitted.value = false;
 }
 
-async function saveBloodRequest() {
-    submitted.value = true;
-    if (bloodRequest?.value.requesting_facility?.trim() && bloodRequest?.value.address?.trim()) {
-        try {
-            if (bloodRequest.value.id) {
-                // Update existing blood request
-                await api.put(`/blood-requests/${bloodRequest.value.id}`, bloodRequest.value);
-                bloodRequests.value[findIndexById(bloodRequest.value.id)] = bloodRequest.value;
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Updated', life: 3000 });
-            } else {
-                // Create new blood request
-                const response = await api.post('/blood-requests', bloodRequest.value);
-                bloodRequest.value.id = response.data.id;
-                bloodRequests.value.push(bloodRequest.value);
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Created', life: 3000 });
-            }
-            bloodRequestDialog.value = false;
-            bloodRequest.value = {};
-        } catch (error) {
-            console.error('Error saving blood request:', error);
-            if (error.response && error.response.data) {
-                console.error('Validation errors:', error.response.data.errors);
-            }
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save blood request', life: 3000 });
-        }
-    } else {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields', life: 3000 });
-    }
-}
 
-function editBloodRequest(request) {
-    bloodRequest.value = { ...request };
-    isEditMode.value = true;
-    bloodRequestDialog.value = true;
-}
+
 
 function findIndexById(id) {
     return bloodRequests.value.findIndex((request) => request.id === id);
 }
 
-function confirmDeleteBloodRequest(request) {
-    bloodRequest.value = request;
-    deleteBloodRequestDialog.value = true;
-}
 
-async function deleteBloodRequest() {
-    try {
-        await api.delete(`/blood-requests/${bloodRequest.value.id}`);
-        bloodRequests.value = bloodRequests.value.filter((val) => val.id !== bloodRequest.value.id);
-        deleteBloodRequestDialog.value = false;
-        bloodRequest.value = {};
-        toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Deleted', life: 3000 });
-    } catch (error) {
-        console.error('Error deleting blood request:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete blood request', life: 3000 });
-    }
-}
 
-function confirmDeleteSelected() {
-    deleteBloodRequestsDialog.value = true;
-}
-
-async function deleteSelectedBloodRequests() {
-    try {
-        const ids = selectedBloodRequests.value.map(request => request.id);
-        await api.post('/blood-requests/delete-multiple', { ids });
-        bloodRequests.value = bloodRequests.value.filter((val) => !selectedBloodRequests.value.includes(val));
-        deleteBloodRequestsDialog.value = false;
-        selectedBloodRequests.value = null;
-        toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Requests Deleted', life: 3000 });
-    } catch (error) {
-        console.error('Error deleting selected blood requests:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete selected blood requests' });
-    }
-}
 </script>
 
 <template>
     <div>
         <div class="card">
-            <Toolbar class="mb-6">
-                <template #start>
-                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedBloodRequests || !selectedBloodRequests.length" />
-                </template>
-            </Toolbar>
             <DataTable
                 ref="dt"
                 v-model:selection="selectedBloodRequests"
@@ -175,18 +111,18 @@ async function deleteSelectedBloodRequests() {
                         </IconField>
                     </div>
                 </template>
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="requesting_facility" header="Requesting Facility" sortable style="min-width: 12rem"></Column>
                 <Column field="address" header="Address" sortable style="min-width: 12rem"></Column>
                 <Column field="pathologist" header="Pathologist" sortable style="min-width: 12rem"></Column>
                 <Column field="facility_transac_num" header="Transaction Number" sortable style="min-width: 12rem"></Column>
                 <Column field="requested_by" header="Requested By" sortable style="min-width: 12rem"></Column>
                 <Column field="created_at" header="Date Created" sortable style="min-width: 10rem"></Column>
+                <Column field="status" header="Status" sortable style="min-width: 10rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="fetchRequisitionItems(slotProps.data.id)" />
-                        <!-- <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editBloodRequest(slotProps.data)" /> -->
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteBloodRequest(slotProps.data)" />
+                        <Button icon="pi pi-check" outlined rounded class="mr-2" @click="acceptBloodRequest(slotProps.data.id)" />
+                        <!-- <Button iAcon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteBloodRequest(slotProps.data)" /> -->
                     </template>
                 </Column>
             </DataTable>

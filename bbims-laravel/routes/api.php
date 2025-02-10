@@ -5,6 +5,7 @@ use App\Http\Controllers\BloodInventoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RequestInquisitionSlipController;
+use App\Models\BloodRequest;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -39,8 +40,8 @@ Route::post('/users/delete-multiple', [UserController::class, 'deleteMultiple'])
 
 
 // Fetch User Data
-Route::get('user', [UserController::class, 'user']);
-// Route::middleware('auth:api')->get('/user', [UserController::class, 'user']);
+// Route::get('user', [UserController::class, 'user']);
+Route::middleware('auth:sanctum')->get('/user', [UserController::class, 'user']);
 
 // RIS
 Route::post('/request-inquisition-slip', [RequestInquisitionSlipController::class, 'store']);
@@ -49,3 +50,4 @@ Route::put('/blood-requests/{id}', [RequestInquisitionSlipController::class, 'up
 Route::delete('/blood-requests/{id}', [RequestInquisitionSlipController::class, 'destroy']);
 Route::post('/blood-requests/delete-multiple', [RequestInquisitionSlipController::class, 'deleteMultiple']);
 Route::get('/blood-requests/{id}/requisition-items', [RequestInquisitionSlipController::class, 'showRequisitionItems']);
+Route::put('/blood-requests/{id}/accept', [BloodRequest::class, 'accept']);

@@ -49,7 +49,26 @@ const routes = [
                 name: 'user-list',
                 component: () => import('@/views/menu/UserList.vue'),
                 meta: { auth: true, roles: ['admin']  }
+            },
+            {
+                path: 'menu/usage-history',
+                name: 'usage-history',
+                component: () => import('@/views/menu/UsageHistory.vue'),
+                meta: { auth: true, roles: ['admin', 'staff'] }
+            },
+            {
+                path: 'menu/forecasting',
+                name: 'forecasting',
+                component: () => import('@/views/menu/Forecasting.vue'),
+                meta: { auth: true, roles: ['admin', 'staff'] }
+            },
+            {
+                path: 'pages/expired-blood',
+                name: 'expired-blood',
+                component: () => import('@/views/pages/ExpiredBlood.vue'),
+                meta: { auth: true, roles: ['admin', 'staff'] }
             }
+
 
         ]
     },

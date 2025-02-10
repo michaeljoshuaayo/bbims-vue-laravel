@@ -2,8 +2,9 @@
 import Fluid from 'primevue/fluid';
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import axios from 'axios'; // Import axios for making HTTP requests
+import axios from 'axios'; 
 import api from '@/services/api'; 
+import Dropdown from 'primevue/dropdown';
 
 const toast = useToast();
 const requestingFacilityValue = ref('');
@@ -19,7 +20,16 @@ const requisitionItems = ref([
         remarks: ''
     }
 ]);
-
+const bloodTypes = [
+    { label: 'A+', value: 'A+' },
+    { label: 'A-', value: 'A-' },
+    { label: 'B+', value: 'B+' },
+    { label: 'B-', value: 'B-' },
+    { label: 'O+', value: 'O+' },
+    { label: 'O-', value: 'O-' },
+    { label: 'AB+', value: 'AB+' },
+    { label: 'AB-', value: 'AB-' }
+];
 const uncrossmatchedQuantities = ref({
     wholeBlood: {
         APlus: '',
@@ -165,7 +175,8 @@ async function submitForm() {
 <template>
     <div class="font-bold text-center text-xl mb-6">Blood Request Inquisition Slip Form (RIS)</div>
     <div class="card">
-        <span class="font-semibold mb-6 block">Basic Details</span>
+        <span class="font-semibold mb-6 block">Basic Details <span class="font text-red-500 text-sm">*All fields required*</span>
+    </span>
         <Fluid>
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -201,7 +212,7 @@ async function submitForm() {
             </div>
         </Fluid>
     </div>
-    <span class="font-bold mb-6 block">Blood Inventory Report (In-Stock)</span>
+    <span class="font-bold mb-6 block">Blood Inventory Report (In-Stock) <span class="font-light">*Optional*</span></span>
     <div class="grid grid-cols-2 gap-4">
         <div class="card" style="height: 375px">
             <span class="font-semibold mb-6 block text-center">Uncrossmatched (Quantity)</span>
@@ -443,7 +454,7 @@ async function submitForm() {
                     </div>
                     <div class="col-span-1">
                         <FloatLabel>
-                            <InputText type="text" v-model="item.bloodType" class="w-full" />
+                            <Dropdown :options="bloodTypes" v-model="item.bloodType" optionLabel="label" optionValue="value" class="w-full" />
                             <label for="">Blood Type</label>
                         </FloatLabel>
                     </div>
@@ -456,7 +467,7 @@ async function submitForm() {
                     <div class="col-span-2 mt-3">
                         <FloatLabel>
                             <InputText type="text" v-model="item.remarks" class="w-full" />
-                            <label for="">Remarks</label>
+                            <label for="">Remarks <span class="font text-sm">(Optional)</span></label>
                         </FloatLabel>
                     </div>
                 </div>

@@ -72,10 +72,13 @@ onMounted(() => {
                     <div class="relative">
                         <button type="button" class="layout-topbar-action" @click="toggleProfileDropdown">
                             <i class="pi pi-user"></i>
-                            <span>Profile</span>
-                            <span v-if="user">{{ user.name }}</span>
+                            <span>{{ user?.name || 'Profile' }}</span>
                         </button>
                         <div v-if="showProfileDropdown" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
+                            <div class="px-4 py-2 border-b">
+                                
+                                <span>{{ user?.name }}</span>
+                            </div>
                             <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100" @click="handleLogout">
                                 Logout
                             </button>

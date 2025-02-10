@@ -34,7 +34,7 @@ class UserController extends Controller
 
     public function user()
     {
-        $user = User::find(auth()->id());
+        $user = User::find(auth()->user()->id);
         return response([$user, 'message' => 'Retrieved successfully'], 200);
     }
 

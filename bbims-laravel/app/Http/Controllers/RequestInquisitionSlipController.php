@@ -69,6 +69,7 @@ class RequestInquisitionSlipController extends Controller
             'crossmatched_packed_rbc_o_minus' => $request->crossmatchedQuantities['packedRBC']['OMinus'],
             'crossmatched_packed_rbc_ab_plus' => $request->crossmatchedQuantities['packedRBC']['ABPlus'],
             'crossmatched_packed_rbc_ab_minus' => $request->crossmatchedQuantities['packedRBC']['ABMinus'],
+            'status' => 'Pending',
         ]);
 
         foreach ($request->requisitionItems as $item) {

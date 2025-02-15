@@ -6,6 +6,7 @@ import axios from 'axios';
 import api from '@/services/api'; 
 import Dropdown from 'primevue/dropdown';
 
+const submitted = ref(false);
 const toast = useToast();
 const requestingFacilityValue = ref('');
 const addressValue = ref('');
@@ -29,6 +30,12 @@ const bloodTypes = [
     { label: 'O-', value: 'O-' },
     { label: 'AB+', value: 'AB+' },
     { label: 'AB-', value: 'AB-' }
+];
+const bloodComponents = [
+    { label: 'Whole blood', value: 'Whole blood' },
+    { label: 'Packed RBC', value: 'Packed RBC' },
+    { label: 'Fresh Frozen Plasma', value: 'Fresh Frozen Plasma' },
+    { label: 'Platelet Concentrate', value: 'Platelet Concentrate' }
 ];
 const uncrossmatchedQuantities = ref({
     wholeBlood: {
@@ -89,6 +96,8 @@ function removeRequisitionItem(index) {
 }
 
 async function submitForm() {
+    submitted.value = true; // Set submitted to true to trigger validation messages
+
     const formData = {
         requestingFacility: requestingFacilityValue.value,
         address: addressValue.value,
@@ -166,16 +175,19 @@ async function submitForm() {
                 ABMinus: ''
             }
         };
+
+        // Reset submitted to false after successful submission
+        submitted.value = false;
     } catch (error) {
         console.error('Error submitting form', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit form', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit form, please check all required fields.', life: 3000 });
     }
 }
 </script>
 <template>
     <div class="font-bold text-center text-xl mb-6">Blood Request Inquisition Slip Form (RIS)</div>
     <div class="card">
-        <span class="font-semibold mb-6 block">Basic Details <span class="font text-red-500 text-sm">*All fields required*</span>
+        <span class="font-semibold mb-6 block">Basic Details <span class="font-light">*All fields required*</span>
     </span>
         <Fluid>
             <div class="grid grid-cols-2 gap-4">
@@ -184,30 +196,35 @@ async function submitForm() {
                         <InputText id="requestingFacility" type="text" v-model="requestingFacilityValue" />
                         <label for="requestingFacility">Requesting Facility / Hospital</label>
                     </FloatLabel>
+                    <small v-if="submitted && !requestingFacilityValue" class="text-red-500">Requesting Facility / Hospital is required.</small>
                 </div>
                 <div>
                     <FloatLabel>
                         <InputText id="address" type="text" v-model="addressValue" />
                         <label for="address">Address</label>
                     </FloatLabel>
+                    <small v-if="submitted && !addressValue" class="text-red-500">Address is required.</small>
                 </div>
                 <div class="mt-3">
                     <FloatLabel>
                         <InputText class="" id="pathologist" type="text" v-model="pathologistValue" />
                         <label for="pathologist">Pathologist</label>
                     </FloatLabel>
+                    <small v-if="submitted && !pathologistValue" class="text-red-500">Pathologist is required.</small>
                 </div>
                 <div class="mt-3">
                     <FloatLabel>
                         <InputText id="facilityTransacNum" type="number" v-model="facilityTransacNumValue" />
                         <label for="facilityTransacNum">Facility / Hospital Transaction Number #</label>
                     </FloatLabel>
+                    <small v-if="submitted && !facilityTransacNumValue" class="text-red-500">Facility / Hospital Transaction Number is required.</small>
                 </div>
                 <div class="mt-3">
                     <FloatLabel>
                         <InputText id="requestedBy" type="text" v-model="requestedByValue" />
                         <label for="requestedBy">Requested By</label>
                     </FloatLabel>
+                    <small v-if="submitted && !requestedByValue" class="text-red-500">Requested By is required.</small>
                 </div>
             </div>
         </Fluid>
@@ -435,7 +452,7 @@ async function submitForm() {
             </Fluid>
         </div>
     </div>
-    <span class="font-bold mb-6 block">Requisition</span>
+    <span class="font-bold mb-6 block">Requisition <span class="font-light">*All fields required*</span></span>
     <div class="">
         <div class="card p-4">
             <div v-for="(item, index) in requisitionItems" :key="index">
@@ -448,27 +465,31 @@ async function submitForm() {
                 <div class="grid grid-cols-3 gap-4">
                     <div class="col-span-1">
                         <FloatLabel>
-                            <InputText type="text" v-model="item.bloodComponent" class="w-full" />
+                            <Dropdown :options="bloodComponents" v-model="item.bloodComponent" optionLabel="label" optionValue="value" class="w-full" />
                             <label for="">Blood Component</label>
                         </FloatLabel>
+                        <small v-if="submitted && !item.bloodComponent" class="text-red-500">Blood Component is required.</small>
                     </div>
                     <div class="col-span-1">
                         <FloatLabel>
                             <Dropdown :options="bloodTypes" v-model="item.bloodType" optionLabel="label" optionValue="value" class="w-full" />
                             <label for="">Blood Type</label>
                         </FloatLabel>
+                        <small v-if="submitted && !item.bloodType" class="text-red-500">Blood Type is required.</small>
                     </div>
                     <div class="col-span-1">
                         <FloatLabel>
                             <InputText type="number" v-model="item.quantity" class="w-full" />
                             <label for="">Quantity</label>
                         </FloatLabel>
+                        <small v-if="submitted && !item.quantity" class="text-red-500">Quantity is required.</small>
                     </div>
                     <div class="col-span-2 mt-3">
                         <FloatLabel>
                             <InputText type="text" v-model="item.remarks" class="w-full" />
                             <label for="">Remarks <span class="font text-sm">(Optional)</span></label>
                         </FloatLabel>
+                        <small v-if="submitted && !item.remarks" class="text-red-500">Remarks is required.</small>
                     </div>
                 </div>
                 <hr class="mt-4 mb-5" />

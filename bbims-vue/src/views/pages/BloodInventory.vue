@@ -3,7 +3,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref, computed } from 'vue';
 import api from '@/services/api'; 
-import { format, differenceInHours } from 'date-fns'; 
+import { format, differenceInHours, differenceInDays } from 'date-fns'; 
 
 const toast = useToast();
 const dt = ref();
@@ -35,6 +35,13 @@ const bloodTypeOptions = [
     { label: 'O-', value: 'O-' }
 ];
 
+const bloodComponents = [
+    { label: 'Whole blood', value: 'Whole blood' },
+    { label: 'Packed RBC', value: 'Packed RBC' },
+    { label: 'Fresh Frozen Plasma', value: 'Fresh Frozen Plasma' },
+    { label: 'Platelet Concentrate', value: 'Platelet Concentrate' }
+];
+
 const fetchBloodInventory = async () => {
     try {
         const response = await api.get('http://localhost:8000/api/blood-inventory'); 
@@ -54,7 +61,8 @@ const formattedProducts = computed(() => {
     return products.value.map(product => ({
         ...product,
         expiryDate: format(new Date(product.expiryDate), 'yyyy-MM-dd'),
-        created_at: format(new Date(product.created_at), 'yyyy-MM-dd')
+        created_at: format(new Date(product.created_at), 'yyyy-MM-dd'),
+        isExpiringSoon: differenceInDays(new Date(product.expiryDate), new Date()) <= 10
     }));
 });
 
@@ -113,21 +121,30 @@ async function saveProduct() {
     submitted.value = true;
     if (product?.value.bloodSerialNumber?.trim() && product?.value.bloodType && product?.value.bloodComponent && product?.value.expiryDate) {
         try {
+            const formattedExpiryDate = format(new Date(product.value.expiryDate), 'yyyy-MM-dd');
             if (product.value.id) {
                 // Update existing product
-                await api.put(`/blood-inventory/${product.value.id}`, product.value);
-                products.value[findIndexById(product.value.id)] = product.value;
+                await api.put(`/blood-inventory/${product.value.id}`, {
+                    ...product.value,
+                    expiryDate: formattedExpiryDate
+                });
+                products.value[findIndexById(product.value.id)] = {
+                    ...product.value,
+                    expiryDate: formattedExpiryDate
+                };
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Component Updated', life: 3000 });
             } else {
                 // Create new product
-                const formattedExpiryDate = format(new Date(product.value.expiryDate), 'yyyy-MM-dd');
                 const response = await api.post('/blood-inventory', {
                     ...product.value,
                     expiryDate: formattedExpiryDate
                 });
                 product.value.id = response.data.id;
                 product.value.created_at = new Date().toISOString(); // Add created_at field
-                products.value.push(product.value);
+                products.value.push({
+                    ...product.value,
+                    expiryDate: formattedExpiryDate
+                });
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Component Created', life: 3000 });
             }
             productDialog.value = false;
@@ -274,12 +291,38 @@ function confirmDeleteSelected() {
                     </div>
                 </template>
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="bloodSerialNumber" header="Blood Serial Number" style="min-width: 12rem"></Column>
-                <Column field="bloodType" header="Blood Type" sortable style="min-width: 10rem"></Column>
-                <Column field="bloodComponent" header="Blood Component" sortable style="min-width: 10rem"></Column>
-                <Column field="created_at" header="Date Added" sortable style="min-width: 10rem"></Column>
-                <Column field="expiryDate" header="Expiration Date" sortable style="min-width: 10rem"></Column>
-                <Column field="inventoryStatus" header="Status" sortable style="min-width: 10rem"></Column>
+                <Column field="bloodSerialNumber" header="Blood Serial Number" style="min-width: 12rem">
+                                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodSerialNumber }}</span>
+                    </template></Column>
+                <Column field="bloodType" header="Blood Type" sortable style="min-width: 10rem">
+                                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodType }}</span>
+                    </template></Column>
+                <Column field="bloodComponent" header="Blood Component" sortable style="min-width: 10rem">
+                                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodComponent }}</span>
+                    </template></Column>
+                <Column field="created_at" header="Date Added" sortable style="min-width: 10rem">
+                                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.created_at }}</span>
+                    </template></Column>
+                <Column field="expiryDate" header="Expiration Date" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.expiryDate }}</span>
+                    </template>
+                </Column>
+                <Column field="inventoryStatus" header="Status" sortable style="min-width: 10rem">
+                                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.inventoryStatus }}</span>
+                    </template></Column>
+                <Column field="Days Left" header="Days Left" style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">
+                            {{ differenceInDays(new Date(slotProps.data.expiryDate), new Date()) <= 0 ? 'EXPIRED' : differenceInDays(new Date(slotProps.data.expiryDate), new Date()) }}
+                        </span>
+                    </template>
+                </Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
@@ -302,7 +345,7 @@ function confirmDeleteSelected() {
                 </div>
                 <div>
                     <label for="bloodComponent" class="block font-bold mb-3">Blood Component</label>
-                    <InputText id="bloodComponent" v-model="product.bloodComponent" required="true" rows="3" cols="20" fluid />
+                    <Dropdown id="bloodComponent" v-model="product.bloodComponent" :options="bloodComponents" optionLabel="label" optionValue="value" placeholder="Select Blood Component" required="true" class="w-full" />
                     <small v-if="submitted && !product.bloodComponent" class="text-red-500">Blood Component is required.</small>
                 </div>
                 <div>

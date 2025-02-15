@@ -140,7 +140,7 @@ async function deleteSelectedUsers() {
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedUsers || !selectedUsers.length" />
+                    <Button label="Remove" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedUsers || !selectedUsers.length" />
                 </template>
             </Toolbar>
             <DataTable
@@ -217,7 +217,7 @@ async function deleteSelectedUsers() {
         <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="user">Are you sure you want to delete <b>{{ user.name }}</b>?</span>
+                <span v-if="user">Are you sure you want to remove <b>{{ user.name }}</b>?</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
@@ -228,7 +228,7 @@ async function deleteSelectedUsers() {
         <Dialog v-model:visible="deleteUsersDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="user">Are you sure you want to delete the selected users?</span>
+                <span v-if="user">Are you sure you want to <b>remove</b> the selected users?</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteUsersDialog = false" />

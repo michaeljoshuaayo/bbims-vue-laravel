@@ -4,12 +4,18 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref, computed } from 'vue';
 import { format, parseISO } from 'date-fns';
 import api from '@/services/api'; 
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 const toast = useToast();
 const dt = ref();
 const bloodRequests = ref([]);
 const bloodRequestDialog = ref(false);
 const viewRequisitionItemsDialog = ref(false);
+const insufficientInventoryDialog = ref(false);
 const bloodRequest = ref({});
 const requisitionItems = ref([]);
 const selectedBloodRequests = ref([]);
@@ -17,7 +23,9 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
-const isEditMode = ref(false); 
+const isEditMode = ref(false);
+const insufficientItemsMessage = ref('');
+const currentBloodRequestId = ref(null);
 
 const fetchBloodRequests = async () => {
     try {
@@ -53,8 +61,46 @@ const acceptBloodRequest = async (bloodRequestId) => {
         // Update blood inventory and log usage history
         await api.post(`/blood-inventory/update-and-log`, { bloodRequestId });
     } catch (error) {
-        console.error('Error accepting blood request:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to accept blood request insufficient blood product', life: 3000 });
+        if (error.response && error.response.data.insufficientItems) {
+            const insufficientItems = error.response.data.insufficientItems;
+            let message = 'There is not enough blood inventory available for the following items: ';
+            insufficientItems.forEach(item => {
+                message += `Blood Type: ${item.blood_type}, Blood Component: ${item.blood_component}. <strong>There are <i>${item.requested_quantity} requested blood</i>, there are only <i>${item.available_quantity} blood available left.</i></strong> `;
+            });
+
+            if (insufficientItems.some(item => item.available_quantity === 0)) {
+                message += '<br><br><strong>Cannot proceed with 0 available products.</strong>';
+                insufficientItemsMessage.value = message;
+                insufficientInventoryDialog.value = true;
+            } else {
+                message += '<br><br><strong>Do you want to proceed with the available quantities?</strong>';
+                insufficientItemsMessage.value = message;
+                currentBloodRequestId.value = bloodRequestId;
+                insufficientInventoryDialog.value = true;
+            }
+        } else {
+            console.error('Error accepting blood request:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to accept blood request', life: 3000 });
+        }
+    }
+};
+
+const proceedWithAvailableQuantities = async () => {
+    try {
+        await api.put(`/blood-requests/${currentBloodRequestId.value}/accept`, { force: true });
+        const index = findIndexById(currentBloodRequestId.value);
+        if (index !== -1) {
+            bloodRequests.value[index].status = 'Accepted';
+        }
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Accepted with available quantities', life: 3000 });
+
+        // Update blood inventory and log usage history
+        await api.post(`/blood-inventory/update-and-log`, { bloodRequestId: currentBloodRequestId.value });
+    } catch (error) {
+        console.error('Error proceeding with available quantities:', error);
+        // toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to proceed with available quantities', life: 3000 });
+    } finally {
+        insufficientInventoryDialog.value = false;
     }
 };
 
@@ -63,10 +109,13 @@ onMounted(() => {
 });
 
 const formattedBloodRequests = computed(() => {
-    return bloodRequests.value.map(request => ({
-        ...request,
-        created_at: request.created_at ? format(parseISO(request.created_at), 'yyyy-MM-dd') : 'invalid date'
-    }));
+    return bloodRequests.value
+        .slice()
+        .sort((a, b) => (a.status === 'Pending' ? -1 : 1))
+        .map(request => ({
+            ...request,
+            created_at: request.created_at ? format(parseISO(request.created_at), 'yyyy-MM-dd') : 'invalid date'
+        }));
 });
 
 function hideDialog() {
@@ -112,7 +161,11 @@ function findIndexById(id) {
                 <Column field="facility_transac_num" header="Transaction Number" sortable style="min-width: 12rem"></Column>
                 <Column field="requested_by" header="Requested By" sortable style="min-width: 12rem"></Column>
                 <Column field="created_at" header="Date Created" sortable style="min-width: 10rem"></Column>
-                <Column field="status" header="Status" sortable style="min-width: 10rem"></Column>
+                <Column field="status" header="Status" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <span :class="{'text-green-500': slotProps.data.status === 'Accepted','text-orange-500': slotProps.data.status === 'Pending'}">{{ slotProps.data.status }}</span>
+                    </template>
+                </Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="fetchRequisitionItems(slotProps.data.id)" />
@@ -167,6 +220,16 @@ function findIndexById(id) {
             </div>
             <template #footer>
                 <Button label="Close" icon="pi pi-times" text @click="viewRequisitionItemsDialog = false" />
+            </template>
+        </Dialog>
+
+        <Dialog v-model:visible="insufficientInventoryDialog" :style="{ width: '450px' }" header="Insufficient Inventory" :modal="true">
+            <div class="flex flex-col gap-6">
+                <p v-html="insufficientItemsMessage"></p>
+            </div>
+            <template #footer>
+                <Button label="Cancel" icon="pi pi-times" text @click="insufficientInventoryDialog = false" />
+                <Button label="Proceed" icon="pi pi-check" @click="proceedWithAvailableQuantities" />
             </template>
         </Dialog>
     </div>

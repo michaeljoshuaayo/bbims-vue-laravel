@@ -24,7 +24,8 @@ const isEditMode = ref(false);
 
 const inventoryStatusOptions = [
     { label: 'AVAILABLE', value: 'AVAILABLE' },
-    { label: 'DISCARDED', value: 'DISCARDED' }
+    { label: 'DISCARDED', value: 'DISCARDED' },
+    { label: 'USED', value: 'USED' }
 ];
 
 const bloodTypeOptions = [

@@ -71,6 +71,7 @@ class BloodInventoryController extends Controller
             $bloodInventoryItems = BloodInventory::where('bloodType', $item->blood_type)
                 ->where('bloodComponent', $item->blood_component)
                 ->where('inventoryStatus', 'AVAILABLE')
+                ->orderBy('expiryDate', 'asc') // Order by expiry date in ascending order
                 ->take($item->quantity)
                 ->get();
 

@@ -3,7 +3,7 @@
         <div class="p-col-12">
             <div class="card">
                 <DataTable 
-                :value="usageHistory" 
+                :value="formattedUsageHistory" 
                 :paginator="true" :rows="20" 
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Blood Distributed"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -15,6 +15,7 @@
                     <Column field="blood_type" header="Blood Type"></Column>
                     <Column field="blood_component" header="Component"></Column>
                     <Column field="remarks" header="Remarks"></Column>
+                    <Column field="created_at" header="Date Distributed"></Column>
                 </DataTable>
             </div>
         </div>
@@ -22,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api from '@/services/api';
 
 const usageHistory = ref([]);
@@ -35,6 +36,13 @@ const fetchUsageHistory = async () => {
         console.error('Error fetching usage history:', error);
     }
 };
+
+const formattedUsageHistory = computed(() => {
+    return usageHistory.value.map(item => ({
+        ...item,
+        created_at: new Date(item.created_at).toISOString().split('T')[0]
+    }));
+});
 
 onMounted(() => {
     fetchUsageHistory();

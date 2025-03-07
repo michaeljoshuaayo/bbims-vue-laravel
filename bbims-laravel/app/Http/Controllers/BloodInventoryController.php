@@ -89,9 +89,20 @@ class BloodInventoryController extends Controller
                     'blood_component' => $inventoryItem->bloodComponent,
                     'remarks' => $item->remarks,
                 ]);
+
+                // Automatically delete the 'USED' inventory item
+                $this->deleteUsedInventory($inventoryItem->id);
             }
         }
 
         return response()->json(['message' => 'Blood inventory updated and usage history logged successfully'], 200);
+    }
+
+    private function deleteUsedInventory($id)
+    {
+        $bloodInventory = BloodInventory::find($id);
+        if ($bloodInventory && $bloodInventory->inventoryStatus == 'USED') {
+            $bloodInventory->delete();
+        }
     }
 }

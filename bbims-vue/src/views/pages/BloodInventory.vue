@@ -14,7 +14,10 @@ const deleteProductsDialog = ref(false);
 const product = ref({ inventoryStatus: 'AVAILABLE' });
 const selectedProducts = ref([]);
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    bloodType: { value: null, matchMode: FilterMatchMode.EQUALS },
+    inventoryStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
+    bloodComponent: { value: null, matchMode: FilterMatchMode.EQUALS }
 });
 const submitted = ref(false);
 const isEditMode = ref(false); 
@@ -262,9 +265,14 @@ function confirmDeleteSelected() {
                     <Button label="Discard" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
                 </template>
                 <template #end>
-                    <input type="file" accept=".csv" @change="importCSV" style="display: none;" ref="fileInput" />
+                    <!-- <input type="file" accept=".csv" @change="importCSV" style="display: none;" ref="fileInput" />
                     <Button label="Import from CSV file" icon="pi pi-download" severity="secondary" @click="$refs.fileInput.click()" class="mr-2" />
-                    <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                    <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" /> -->
+                    <div class="flex gap-4">
+                        <Select v-model="filters.bloodType.value" :options="bloodTypeOptions" optionLabel="label" optionValue="value" placeholder="Filter by Blood Type" class="w-full md:w-1/3" />
+                        <Select v-model="filters.inventoryStatus.value" :options="inventoryStatusOptions" optionLabel="label" optionValue="value" placeholder="Filter by Status" class="w-full md:w-1/3" />
+                        <Select v-model="filters.bloodComponent.value" :options="bloodComponents" optionLabel="label" optionValue="value" placeholder="Filter by Blood Component" class="w-full md:w-1/2" />
+                    </div>
                 </template>
             </Toolbar>
             <DataTable

@@ -236,6 +236,39 @@ function importCSV(event) {
 function confirmDeleteSelected() {
     deleteProductsDialog.value = true;
 }
+
+function printNearExpiryProducts() {
+    const nearExpiryProducts = formattedProducts.value.filter(product => product.isExpiringSoon);
+    const printContent = `
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Blood Serial Number</th>
+                    <th>Blood Type</th>
+                    <th>Blood Component</th>
+                    <th>Expiry Date</th>
+                    <th>Days Left</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${nearExpiryProducts.map(product => `
+                    <tr>
+                        <td>${product.bloodSerialNumber}</td>
+                        <td>${product.bloodType}</td>
+                        <td>${product.bloodComponent}</td>
+                        <td>${product.expiryDate}</td>
+                        <td>${differenceInDays(new Date(product.expiryDate), new Date()) <= 0 ? 'EXPIRED' : differenceInDays(new Date(product.expiryDate), new Date())}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Near Expiry Blood Products</title></head><body>' + printContent + '</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+}
 </script>
 
 <template>
@@ -261,13 +294,17 @@ function confirmDeleteSelected() {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Discard" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                    <div class="flex gap-4">
+                        <Button label="New" icon="pi pi-plus" severity="secondary" @click="openNew" />
+                        <Button label="Discard" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                        <Button label="Print Near Expiry" icon="pi pi-print" severity="secondary" @click="printNearExpiryProducts" />
+                        <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+
+                    </div>
                 </template>
                 <template #end>
                     <!-- <input type="file" accept=".csv" @change="importCSV" style="display: none;" ref="fileInput" />
-                    <Button label="Import from CSV file" icon="pi pi-download" severity="secondary" @click="$refs.fileInput.click()" class="mr-2" />
-                    <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" /> -->
+                    <Button label="Import from CSV file" icon="pi pi-download" severity="secondary" @click="$refs.fileInput.click()" class="mr-2" /> -->
                     <div class="flex gap-4">
                         <Select v-model="filters.bloodType.value" :options="bloodTypeOptions" optionLabel="label" optionValue="value" placeholder="Filter by Blood Type" class="w-full md:w-1/3" />
                         <Select v-model="filters.inventoryStatus.value" :options="inventoryStatusOptions" optionLabel="label" optionValue="value" placeholder="Filter by Status" class="w-full md:w-1/3" />

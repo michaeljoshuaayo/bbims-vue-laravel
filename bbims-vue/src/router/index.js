@@ -1,6 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuth } from 'vue-auth3';
 
 
 const routes = [
@@ -67,6 +66,12 @@ const routes = [
                 name: 'expired-blood',
                 component: () => import('@/views/pages/ExpiredBlood.vue'),
                 meta: { auth: true, roles: ['admin', 'staff'] }
+            },
+            {
+                path: 'menu/request-history',
+                name: 'request-history',
+                component: () => import('@/views/menu/RequestHistory.vue'),
+                meta: { auth: true, roles: ['user'] }
             }
 
 

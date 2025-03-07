@@ -9,8 +9,6 @@ const toast = useToast();
 const dt = ref();
 const bloodRequests = ref([]);
 const bloodRequestDialog = ref(false);
-const deleteBloodRequestDialog = ref(false);
-const deleteBloodRequestsDialog = ref(false);
 const viewRequisitionItemsDialog = ref(false);
 const bloodRequest = ref({});
 const requisitionItems = ref([]);
@@ -121,7 +119,7 @@ function findIndexById(id) {
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="fetchRequisitionItems(slotProps.data.id)" />
-                        <Button icon="pi pi-check" outlined rounded class="mr-2" @click="acceptBloodRequest(slotProps.data.id)" />
+                        <Button v-if="slotProps.data.status !== 'Accepted'" icon="pi pi-check" outlined rounded class="mr-2" @click="acceptBloodRequest(slotProps.data.id)" />
                         <!-- <Button iAcon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteBloodRequest(slotProps.data)" /> -->
                     </template>
                 </Column>
@@ -172,28 +170,6 @@ function findIndexById(id) {
             </div>
             <template #footer>
                 <Button label="Close" icon="pi pi-times" text @click="viewRequisitionItemsDialog = false" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteBloodRequestDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="bloodRequest">Are you sure you want to delete <b>{{ bloodRequest.requesting_facility }}</b>?</span>
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteBloodRequestDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteBloodRequest" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteBloodRequestsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="bloodRequest">Are you sure you want to delete the selected blood requests?</span>
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteBloodRequestsDialog = false" />
-                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedBloodRequests" />
             </template>
         </Dialog>
     </div>

@@ -316,7 +316,7 @@ function confirmDeleteSelected() {
                                     <template #body="slotProps">
                         <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.inventoryStatus }}</span>
                     </template></Column>
-                <Column field="Days Left" header="Days Left" style="min-width: 10rem">
+                <Column field="Days Left" header="Days Left" sortable style="min-width: 10rem">
                     <template #body="slotProps">
                         <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">
                             {{ differenceInDays(new Date(slotProps.data.expiryDate), new Date()) <= 0 ? 'EXPIRED' : differenceInDays(new Date(slotProps.data.expiryDate), new Date()) }}

@@ -43,15 +43,18 @@ const fetchRequisitionItems = async (bloodRequestId) => {
 
 const acceptBloodRequest = async (bloodRequestId) => {
     try {
-        await api.put(`/blood-requests/${bloodRequestId}/accept`);
+        const response = await api.put(`/blood-requests/${bloodRequestId}/accept`);
         const index = findIndexById(bloodRequestId);
         if (index !== -1) {
             bloodRequests.value[index].status = 'Accepted';
         }
         toast.add({ severity: 'success', summary: 'Successful', detail: 'Blood Request Accepted', life: 3000 });
+
+        // Update blood inventory and log usage history
+        await api.post(`/blood-inventory/update-and-log`, { bloodRequestId });
     } catch (error) {
         console.error('Error accepting blood request:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to accept blood request', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to accept blood request insufficient blood product', life: 3000 });
     }
 };
 
@@ -66,21 +69,14 @@ const formattedBloodRequests = computed(() => {
     }));
 });
 
-
 function hideDialog() {
     bloodRequestDialog.value = false;
     submitted.value = false;
 }
 
-
-
-
 function findIndexById(id) {
     return bloodRequests.value.findIndex((request) => request.id === id);
 }
-
-
-
 </script>
 
 <template>
@@ -109,6 +105,7 @@ function findIndexById(id) {
                         </IconField>
                     </div>
                 </template>
+                <Column field="id" header="Request ID" sortable style="min-width: 8rem"></Column>
                 <Column field="requesting_facility" header="Requesting Facility" sortable style="min-width: 12rem"></Column>
                 <Column field="address" header="Address" sortable style="min-width: 12rem"></Column>
                 <Column field="pathologist" header="Pathologist" sortable style="min-width: 12rem"></Column>

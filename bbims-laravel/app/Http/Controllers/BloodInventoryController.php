@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BloodInventory;
+use App\Models\UsageHistory;
+use App\Models\BloodRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log; // Import the Log facade
 
@@ -58,5 +60,38 @@ class BloodInventoryController extends Controller
         $ids = $request->input('ids');
         BloodInventory::whereIn('id', $ids)->delete();
         return response()->json(null, 204);
+    }
+
+    public function updateAndLog(Request $request)
+    {
+        $bloodRequestId = $request->input('bloodRequestId');
+        $bloodRequest = BloodRequest::with('requisitionItems')->findOrFail($bloodRequestId);
+
+        foreach ($bloodRequest->requisitionItems as $item) {
+            $bloodInventoryItems = BloodInventory::where('bloodType', $item->blood_type)
+                ->where('bloodComponent', $item->blood_component)
+                ->where('inventoryStatus', 'AVAILABLE')
+                ->take($item->quantity)
+                ->get();
+
+            if ($bloodInventoryItems->count() < $item->quantity) {
+                return response()->json(['error' => 'Not enough blood inventory available'], 400);
+            }
+
+            foreach ($bloodInventoryItems as $inventoryItem) {
+                $inventoryItem->inventoryStatus = 'USED';
+                $inventoryItem->save();
+
+                UsageHistory::create([
+                    'blood_request_id' => $bloodRequestId,
+                    'blood_serial_number' => $inventoryItem->bloodSerialNumber,
+                    'blood_type' => $inventoryItem->bloodType,
+                    'blood_component' => $inventoryItem->bloodComponent,
+                    'remarks' => $item->remarks,
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Blood inventory updated and usage history logged successfully'], 200);
     }
 }

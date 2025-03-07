@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RequestInquisitionSlipController;
 use App\Models\BloodRequest;
+use App\Http\Controllers\BloodRequestController;
+use App\Http\Controllers\UsageHistoryController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -23,6 +25,7 @@ Route::get('/blood-inventory/{id}', [BloodInventoryController::class, 'show']);
 Route::put('/blood-inventory/{id}', [BloodInventoryController::class, 'update']);
 Route::delete('/blood-inventory/{id}', [BloodInventoryController::class, 'destroy']);
 Route::post('/blood-inventory/delete-multiple', [BloodInventoryController::class, 'deleteMultiple']);
+Route::post('/blood-inventory/update-and-log', [BloodInventoryController::class, 'updateAndLog']);
 
 // Create Add-User Routes
 Route::resource('users', UserController::class);
@@ -33,14 +36,9 @@ Route::put('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
 Route::post('/users/delete-multiple', [UserController::class, 'deleteMultiple']);
 
-
 // User Role Routes
 
-
-
-
 // Fetch User Data
-// Route::get('user', [UserController::class, 'user']);
 Route::middleware('auth:sanctum')->get('/user', [UserController::class, 'user']);
 
 // RIS
@@ -50,4 +48,7 @@ Route::put('/blood-requests/{id}', [RequestInquisitionSlipController::class, 'up
 Route::delete('/blood-requests/{id}', [RequestInquisitionSlipController::class, 'destroy']);
 Route::post('/blood-requests/delete-multiple', [RequestInquisitionSlipController::class, 'deleteMultiple']);
 Route::get('/blood-requests/{id}/requisition-items', [RequestInquisitionSlipController::class, 'showRequisitionItems']);
-Route::put('/blood-requests/{id}/accept', [BloodRequest::class, 'accept']);
+Route::put('/blood-requests/{id}/accept', [BloodRequestController::class, 'accept']);
+
+// Usage History Routes
+Route::get('/usage-history', [UsageHistoryController::class, 'index']);

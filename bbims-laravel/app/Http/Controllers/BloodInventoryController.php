@@ -89,13 +89,6 @@ class BloodInventoryController extends Controller
                 $inventoryItem->inventoryStatus = 'USED';
                 $inventoryItem->save();
 
-                UsageHistory::create([
-                    'blood_request_id' => $bloodRequestId,
-                    'blood_serial_number' => $inventoryItem->bloodSerialNumber,
-                    'blood_type' => $inventoryItem->bloodType,
-                    'blood_component' => $inventoryItem->bloodComponent,
-                    'remarks' => $item->remarks,
-                ]);
 
                 $processedQuantity++;
 

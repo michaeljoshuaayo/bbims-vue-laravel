@@ -1,13 +1,6 @@
-<script setup>
-import { ref} from 'vue';
-
-const role = ref('staff')
-
-</script>
-
 <template>
     <div class="grid grid-cols-12 gap-8">
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3" v-if="role == 'admin' || role == 'staff'">
+        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>

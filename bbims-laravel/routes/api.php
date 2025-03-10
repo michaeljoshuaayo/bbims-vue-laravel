@@ -9,7 +9,12 @@ use App\Http\Controllers\RequestInquisitionSlipController;
 use App\Http\Controllers\BloodRequestController;
 use App\Http\Controllers\UsageHistoryController;
 use App\Http\Controllers\ForecastingController;
+use App\Http\Controllers\DashboardController;
 
+// Dashboard Routes
+Route::get('/dashboard-data', [DashboardController::class, 'getDashboardData']);
+
+// Forecast Routes
 Route::get('/forecast', [ForecastingController::class, 'forecastUsage']);
 Route::get('/forecast/component', [BloodComponentForecastingController::class, 'forecastComponentUsage']);
 

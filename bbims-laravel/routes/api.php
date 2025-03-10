@@ -4,13 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BloodInventoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BloodComponentForecastingController;
 use App\Http\Controllers\RequestInquisitionSlipController;
-use App\Models\BloodRequest;
 use App\Http\Controllers\BloodRequestController;
 use App\Http\Controllers\UsageHistoryController;
 use App\Http\Controllers\ForecastingController;
 
 Route::get('/forecast', [ForecastingController::class, 'forecastUsage']);
+Route::get('/forecast/component', [BloodComponentForecastingController::class, 'forecastComponentUsage']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

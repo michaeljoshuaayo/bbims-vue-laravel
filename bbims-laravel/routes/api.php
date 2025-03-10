@@ -8,6 +8,9 @@ use App\Http\Controllers\RequestInquisitionSlipController;
 use App\Models\BloodRequest;
 use App\Http\Controllers\BloodRequestController;
 use App\Http\Controllers\UsageHistoryController;
+use App\Http\Controllers\ForecastingController;
+
+Route::get('/forecast', [ForecastingController::class, 'forecastUsage']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

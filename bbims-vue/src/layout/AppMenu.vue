@@ -33,7 +33,9 @@ const model = ref([
             { label: 'Usage History', icon: 'pi pi-fw pi-history', to: '/menu/usage-history', for: 'staff' },
             { label: 'Forecasting', icon: 'pi pi-fw pi-chart-line', to: '/menu/forecasting', for: 'admin' },
             { label: 'Forecasting', icon: 'pi pi-fw pi-chart-line', to: '/menu/forecasting', for: 'staff' },
-            { label: 'Request History', icon: 'pi pi-fw pi-history', to: '/menu/request-history', for: 'user' }
+            { label: 'Request History', icon: 'pi pi-fw pi-history', to: '/menu/request-history', for: 'user' },
+            { label: 'Sarima', icon: 'pi pi-fw pi-chart-line', to: '/menu/sarima', for: 'admin' },
+            { label: 'Sarima', icon: 'pi pi-fw pi-chart-line', to: '/menu/sarima', for: 'staff' },
 
 
         ]

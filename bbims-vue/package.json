@@ -12,6 +12,7 @@
         "@fortawesome/vue-fontawesome": "^3.0.8",
         "@primevue/themes": "^4.0.0",
         "@websanova/vue-auth": "^4.2.1",
+        "arima": "^0.2.5",
         "axios": "^1.7.9",
         "chart.js": "^4.4.8",
         "date-fns": "^4.1.0",

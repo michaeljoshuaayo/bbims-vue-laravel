@@ -275,7 +275,7 @@ function printNearExpiryProducts() {
 
 <template>
     <div>
-        <div class="font-semibold text-2xl mb-6">Blood Inventory Summary</div>
+        <div class="font-semibold text-2xl mb-6">Blood Inventory Stock Level</div>
         <div class="grid grid-cols-12 gap-8 mb-6">
             <div v-for="(count, bloodType) in bloodTypeCounts" :key="bloodType" class="col-span-12 lg:col-span-6 xl:col-span-3">
                 <div class="card mb-0">
@@ -378,7 +378,7 @@ function printNearExpiryProducts() {
                 </Column>
             </DataTable>
         </div>
-        <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Blood Product Details" :modal="true">
+        <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" :header="isEditMode ? 'Edit Blood Product Details' : 'Blood Product Details'" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="bloodSerialNumber" class="block font-bold mb-3">Blood Serial Number</label>

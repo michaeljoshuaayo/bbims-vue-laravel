@@ -10,6 +10,12 @@ use App\Http\Controllers\BloodRequestController;
 use App\Http\Controllers\UsageHistoryController;
 use App\Http\Controllers\ForecastingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ForecastController;
+
+// SARIMA CONTROLLER
+Route::post('/sarima-predict', [ForecastController::class, 'predict']);
+
+Route::get('/sarima-predict', [ForecastController::class, 'getDailyUsage']);
 
 // Dashboard Routes
 Route::get('/dashboard-data', [DashboardController::class, 'getDashboardData']);

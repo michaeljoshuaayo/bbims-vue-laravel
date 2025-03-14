@@ -72,6 +72,12 @@ const routes = [
                 name: 'request-history',
                 component: () => import('@/views/menu/RequestHistory.vue'),
                 meta: { auth: true, roles: ['user'] }
+            },
+            {
+                path: 'menu/sarima',
+                name: 'sarima',
+                component: () => import('@/views/menu/Sarima.vue'),
+                meta: { auth: true, roles: ['admin', 'staff'] }
             }
 
 

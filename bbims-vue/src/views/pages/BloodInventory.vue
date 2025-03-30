@@ -26,7 +26,6 @@ const inventoryStatusOptions = [
     { label: 'AVAILABLE', value: 'AVAILABLE' },
     { label: 'DISCARDED', value: 'DISCARDED' },
     { label: 'USED', value: 'USED' },
-    { label: 'EXPIRED', value: 'EXPIRED' }
 ];
 
 const bloodTypeOptions = [
@@ -63,12 +62,14 @@ onMounted(() => {
 });
 
 const formattedProducts = computed(() => {
-    return products.value.map(product => ({
-        ...product,
-        expiryDate: format(new Date(product.expiryDate), 'yyyy-MM-dd'),
-        created_at: format(new Date(product.created_at), 'yyyy-MM-dd'),
-        isExpiringSoon: differenceInDays(new Date(product.expiryDate), new Date()) <= 10
-    }));
+    return products.value
+        .filter(product => differenceInDays(new Date(product.expiryDate), new Date()) > 0) // Exclude rows with Days Left <= 0
+        .map(product => ({
+            ...product,
+            expiryDate: format(new Date(product.expiryDate), 'yyyy-MM-dd'),
+            created_at: format(new Date(product.created_at), 'yyyy-MM-dd'),
+            isExpiringSoon: differenceInDays(new Date(product.expiryDate), new Date()) <= 10
+        }));
 });
 
 const bloodTypeCounts = computed(() => {

@@ -42,6 +42,11 @@ Route::delete('/blood-inventory/{id}', [BloodInventoryController::class, 'destro
 Route::post('/blood-inventory/delete-multiple', [BloodInventoryController::class, 'deleteMultiple']);
 Route::post('/blood-inventory/update-and-log', [BloodInventoryController::class, 'updateAndLog']);
 
+// Expired Blood Routes
+Route::get('/expired-blood', [BloodInventoryController::class, 'getExpiredBlood']);
+Route::post('/expired-blood/delete', [BloodInventoryController::class, 'deleteExpired']);
+
+
 // Create Add-User Routes
 Route::resource('users', UserController::class);
 Route::get('/users', [UserController::class, 'index']);

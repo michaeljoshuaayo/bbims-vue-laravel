@@ -100,6 +100,24 @@ class BloodInventoryController extends Controller
         return response()->json(['message' => 'Blood inventory updated and usage history logged successfully'], 200);
     }
 
+    public function getExpiredBlood()
+    {
+        $today = now()->toDateString();
+
+        // Retrieve all expired blood items based on expiryDate
+        $expiredBlood = BloodInventory::where('expiryDate', '<', $today)->get();
+
+        return response()->json($expiredBlood, 200);
+    }
+
+    public function deleteExpired(Request $request)
+    {
+        $ids = $request->input('ids');
+        BloodInventory::whereIn('id', $ids)->delete();
+
+        return response()->json(['message' => 'Expired blood records deleted successfully'], 200);
+    }
+
     private function deleteUsedInventory($id)
     {
         $bloodInventory = BloodInventory::find($id);

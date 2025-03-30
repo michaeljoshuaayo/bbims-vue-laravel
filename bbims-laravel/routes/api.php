@@ -19,6 +19,8 @@ Route::get('/sarima-predict', [ForecastController::class, 'getDailyUsage']);
 
 // Dashboard Routes
 Route::get('/dashboard-data', [DashboardController::class, 'getDashboardData']);
+Route::get('/distributed-blood-data', [DashboardController::class, 'getDistributedBloodData']);
+
 
 // Forecast Routes
 Route::get('/forecast', [ForecastingController::class, 'forecastUsage']);

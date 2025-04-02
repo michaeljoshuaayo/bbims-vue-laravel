@@ -40,7 +40,7 @@ const getPeriodLabel = (period, pastCount, forecastCount) => {
 // Fetch Blood Usage Forecast
 const fetchForecastData = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/forecast?period=${selectedUsagePeriod.value}`);
+    const response = await axios.get(`https://api.bbimsbicol.com/api/forecast?period=${selectedUsagePeriod.value}`);
     const { past, forecast } = response.data;
 
     const pastCount = past.length;

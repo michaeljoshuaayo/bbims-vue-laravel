@@ -48,7 +48,7 @@ const bloodComponents = [
 
 const fetchBloodInventory = async () => {
     try {
-        const response = await api.get('http://localhost:8000/api/blood-inventory'); 
+        const response = await api.get('https://api.bbimsbicol.com/api/blood-inventory'); 
         console.log('API Response:', response.data); 
         products.value = response.data;
     } catch (error) {

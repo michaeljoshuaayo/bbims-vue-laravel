@@ -35,7 +35,7 @@ const auth = createAuth({
     stores: ['storage', 'cookie'],
     loginData: {
         method: 'post',
-        url: 'http://127.0.0.1:8000/api/login',
+        url: 'https://api.bbimsbicol.com/api/login',
         redirect: '/',
         staySignedIn: true,
         fetchUser: true,
@@ -43,17 +43,17 @@ const auth = createAuth({
     },
     logoutData: {
         method: 'post',
-        url: 'http://127.0.0.1:8000/api/logout',
-        redirect: 'http://127.0.0.1:8000/api/login',
+        url: 'https://api.bbimsbicol.com/api/logout',
+        redirect: 'https://api.bbimsbicol.com/api/login',
     },
     fetchData: {
         method: 'get',
-        url: 'http://127.0.0.1:8000/api/user',
+        url: 'https://api.bbimsbicol.com/api/user',
         enabled: true
     },
     refreshData: {
         method: 'get',
-        url: 'http://127.0.0.1:8000/api/refresh',
+        url: 'https://api.bbimsbicol.com/api/refresh',
         enabled: true,
         interval: 30,
     }

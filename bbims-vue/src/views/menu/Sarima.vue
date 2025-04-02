@@ -1,107 +1,116 @@
 <template>
   <div>
-    <h1>Blood Usage Forecast (Next 5 Days)</h1>
+    <h1>Blood Usage Forecast</h1>
 
-    <!-- Display each of the 5 forecast points -->
-    <p>Forecast for Next Day 1: {{ forecastResults[0] }}</p>
-    <p>Forecast for Next Day 2: {{ forecastResults[1] }}</p>
-    <p>Forecast for Next Day 3: {{ forecastResults[2] }}</p>
-    <p>Forecast for Next Day 4: {{ forecastResults[3] }}</p>
-    <p>Forecast for Next Day 5: {{ forecastResults[4] }}</p>
+    <!-- Forecast Type -->
+    <label for="forecastType">Forecast Type:</label>
+    <select v-model="forecastType" @change="loadForecast" id="forecastType">
+      <option value="weekly">Weekly (Next 7 Days)</option>
+      <option value="monthly">Monthly (Next 30 Days)</option>
+      <option value="yearly">Yearly (Next 365 Days)</option>
+    </select>
 
-    <!-- Chart container -->
+    <!-- Component Dropdown -->
+    <label for="selectedComponent">Component:</label>
+    <select v-model="selectedComponent" @change="loadForecast" id="selectedComponent">
+      <option value="Total">Total</option>
+      <option v-for="(values, name) in rawComponentUsage" :key="name" :value="name">
+        {{ name }}
+      </option>
+    </select>
+
+    <!-- Chart -->
     <div class="chart-container">
-      <canvas ref="bloodUsageChart"></canvas>
+      <canvas ref="forecastChart"></canvas>
     </div>
   </div>
 </template>
 
 <script>
-import sarimaForecast from '@/services/sarimaForecast.js'; // Adjust path if needed
-
-// Import Chart.js
-import { Chart, registerables } from 'chart.js';  
+import sarimaForecast from '@/services/sarimaForecast.js';
+import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 export default {
   name: 'BloodForecast',
   data() {
     return {
-      bloodUsage: [],           // Full historical usage array
-      forecastResults: [],      // Will store 5 forecast values
-      chart: null               // Chart.js instance
+      rawTotalUsage: [],
+      rawComponentUsage: {},
+      selectedComponent: 'Total',
+      forecastType: 'weekly',
+      chart: null
     };
   },
-  created() {
-    // Fetch the FULL dataset from your API
-    fetch('http://127.0.0.1:8000/api/sarima-predict')
-      .then(response => response.json())
-      .then(data => {
-        this.bloodUsage = data;
-        // Once the data is loaded, compute the 5-day forecast
-        this.computeForecast();
-      })
-      .catch(error => {
-        console.error('Error fetching usage data:', error);
-      });
+  mounted() {
+    this.fetchAllUsage();
   },
   methods: {
-    computeForecast() {
-      // Use the FULL time series for the forecast
-      const resids = new Array(this.bloodUsage.length).fill(0);
+    fetchAllUsage() {
+      // Get total usage
+      fetch('http://127.0.0.1:8000/api/sarima-predict')
+        .then(res => res.json())
+        .then(data => {
+          this.rawTotalUsage = data;
+          this.loadForecast();
+        });
 
-      // We request 5 forecast steps
-      const forecastArray = sarimaForecast({
-        data: this.bloodUsage,
+      // Get component-wise usage
+      fetch('http://127.0.0.1:8000/api/sarima-components')
+        .then(res => res.json())
+        .then(data => {
+          this.rawComponentUsage = data;
+        });
+    },
+
+    loadForecast() {
+      let steps = 7;
+      let s = 2*365;
+
+      if (this.forecastType === 'monthly') {
+        steps = 30;
+        s = 2*365;
+      } else if (this.forecastType === 'yearly') {
+        steps = 365;
+        s = 2*365;
+      }
+
+      let usageArray =
+        this.selectedComponent === 'Total'
+          ? this.rawTotalUsage
+          : this.rawComponentUsage[this.selectedComponent] || [];
+
+      const resids = new Array(usageArray.length).fill(0);
+
+      const forecastResults = sarimaForecast({
+        data: usageArray,
         resids,
         p: 1, d: 1, q: 1,
         P: 1, D: 1, Q: 1,
-        s: 7,        // weekly seasonality if appropriate
-        steps: 5,    // <-- Forecast 5 days
+        s,
+        steps,
         phi: 0,
         Phi: 0,
         theta: 0,
         Theta: 0
       });
 
-      // Now we have 5 forecasted values
-      this.forecastResults = forecastArray; // e.g. [f1, f2, f3, f4, f5]
-
-      // Render the chart with the last 14 days of history + 5 forecast points
-      this.renderChart();
+      this.renderForecastChart(usageArray, forecastResults);
     },
 
-    renderChart() {
-      // Ensure the <canvas> ref exists
-      if (!this.$refs.bloodUsageChart) return;
+    renderForecastChart(history, forecast) {
+      if (!this.$refs.forecastChart) return;
+      if (this.chart) this.chart.destroy();
 
-      // Destroy existing chart if it exists (for re-renders)
-      if (this.chart) {
-        this.chart.destroy();
-      }
-
-      const ctx = this.$refs.bloodUsageChart.getContext('2d');
-
-      // Number of historical days to display
+      const ctx = this.$refs.forecastChart.getContext('2d');
       const LAST_N = 14;
+      const recent = history.slice(-LAST_N);
 
-      // The forecast covers 5 points
-      const FORECAST_LENGTH = this.forecastResults.length; // should be 5
-
-      // Slice the last 14 days from the full usage array
-      const recentUsage = this.bloodUsage.slice(-LAST_N);
-
-      // We'll plot "recentUsage.length" data points for history,
-      // then 5 forecast points. For the forecast dataset, we insert
-      // `null` for historical range so the red line only appears at the end.
-      const forecastData = [
-        ...Array(recentUsage.length).fill(null),
-        ...this.forecastResults
-      ];
-
-      // Create total label count = last N days + 5 forecast
-      const totalPoints = recentUsage.length + FORECAST_LENGTH;
-      const labels = Array.from({ length: totalPoints }, (_, i) => `Day ${i + 1}`);
+      const forecastData = [...Array(recent.length).fill(null), ...forecast];
+      const labels = Array.from(
+        { length: recent.length + forecast.length },
+        (_, i) => `Day ${i + 1}`
+      );
 
       this.chart = new Chart(ctx, {
         type: 'line',
@@ -109,30 +118,29 @@ export default {
           labels,
           datasets: [
             {
-              label: `Last ${LAST_N} Days (Historical)`,
-              data: recentUsage,
+              label: 'Historical',
+              data: recent,
               borderColor: 'blue',
-              backgroundColor: 'blue',
               fill: false,
               tension: 0.2
             },
             {
-              label: 'Forecast (Next 5 Days)',
+              label: `Forecast (${this.selectedComponent})`,
               data: forecastData,
               borderColor: 'red',
-              backgroundColor: 'red',
               fill: false,
               tension: 0.2
-            },
-          ],
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: {
-              beginAtZero: true
-            }
+            y: { beginAtZero: true }
+          },
+          plugins: {
+            legend: { position: 'bottom' }
           }
         }
       });
@@ -145,8 +153,15 @@ export default {
 .chart-container {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 1500px;
   height: 400px;
-  margin: 0 auto;
+  margin: 2rem auto;
+}
+
+#forecastType,
+#selectedComponent {
+  margin: 1rem 1rem 1rem 0;
+  padding: 0.4rem;
+  font-size: 1rem;
 }
 </style>

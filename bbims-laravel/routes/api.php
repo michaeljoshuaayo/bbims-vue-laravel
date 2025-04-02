@@ -26,6 +26,8 @@ Route::get('/distributed-blood-data', [DashboardController::class, 'getDistribut
 Route::get('/forecast', [ForecastingController::class, 'forecastUsage']);
 Route::get('/forecast/component', [BloodComponentForecastingController::class, 'forecastComponentUsage']);
 
+Route::get('/sarima-components', [ForecastController::class, 'getComponentUsage']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

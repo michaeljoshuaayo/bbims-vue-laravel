@@ -72,28 +72,16 @@ class BloodInventoryController extends Controller
                 ->where('bloodComponent', $item->blood_component)
                 ->where('inventoryStatus', 'AVAILABLE')
                 ->orderBy('expiryDate', 'asc') // Order by expiry date in ascending order
-                ->take($item->quantity)
                 ->get();
 
             if ($bloodInventoryItems->count() < $item->quantity) {
                 return response()->json(['error' => 'Not enough blood inventory available'], 400);
             }
 
-            // Ensure we only process the exact quantity needed
-            $processedQuantity = 0;
-            foreach ($bloodInventoryItems as $inventoryItem) {
-                if ($processedQuantity >= $item->quantity) {
-                    break;
-                }
-
+            // Process only the exact quantity needed
+            foreach ($bloodInventoryItems->take($item->quantity) as $inventoryItem) {
                 $inventoryItem->inventoryStatus = 'USED';
                 $inventoryItem->save();
-
-
-                $processedQuantity++;
-
-                // Automatically delete the 'USED' inventory item
-                // $this->deleteUsedInventory($inventoryItem->id);
             }
         }
 

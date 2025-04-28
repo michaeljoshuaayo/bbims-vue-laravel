@@ -3,7 +3,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref, computed } from 'vue';
 import api from '@/services/api'; 
-import { format, differenceInHours, differenceInDays } from 'date-fns'; 
+import { format, differenceInHours, differenceInDays, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns'; 
 
 const toast = useToast();
 const dt = ref();
@@ -13,14 +13,38 @@ const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const product = ref({ inventoryStatus: 'AVAILABLE' });
 const selectedProducts = ref([]);
+const dateRange = ref([null, null]); // Holds the selected date range
+const expirationTimeframe = ref(null); // Holds the selected timeframe
+
+// Update the filters object to include a date range filter
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     bloodType: { value: null, matchMode: FilterMatchMode.EQUALS },
     inventoryStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
-    bloodComponent: { value: null, matchMode: FilterMatchMode.EQUALS }
+    bloodComponent: { value: null, matchMode: FilterMatchMode.EQUALS },
+    dateRange: { value: null } // New date range filter
 });
+
+const timeframeOptions = [
+    { label: 'This Week', value: 'thisWeek' },
+    { label: 'Next Week', value: 'nextWeek' },
+    { label: 'This Month', value: 'thisMonth' },
+    { label: 'Next Month', value: 'nextMonth' },
+];
+
 const submitted = ref(false);
 const isEditMode = ref(false); 
+const daysLeftThreshold = ref(10); // Default threshold
+const thresholdDialog = ref(false);
+
+function openThresholdDialog() {
+    thresholdDialog.value = true;
+}
+
+function saveThreshold(newThreshold) {
+    daysLeftThreshold.value = newThreshold;
+    thresholdDialog.value = false;
+}
 
 const inventoryStatusOptions = [
     { label: 'AVAILABLE', value: 'AVAILABLE' },
@@ -48,7 +72,7 @@ const bloodComponents = [
 
 const fetchBloodInventory = async () => {
     try {
-        const response = await api.get('https://api.bbimsbicol.com/api/blood-inventory'); 
+        const response = await api.get('http://localhost:8000/api/blood-inventory'); 
         console.log('API Response:', response.data); 
         products.value = response.data;
     } catch (error) {
@@ -61,14 +85,40 @@ onMounted(() => {
     fetchBloodInventory();
 });
 
+// Update the formattedProducts computed property to apply the timeframe filter
 const formattedProducts = computed(() => {
+    const now = new Date();
+    let startDate = null;
+    let endDate = null;
+
+    if (expirationTimeframe.value === 'thisWeek') {
+        startDate = startOfWeek(now);
+        endDate = endOfWeek(now);
+    } else if (expirationTimeframe.value === 'nextWeek') {
+        startDate = addDays(endOfWeek(now), 1);
+        endDate = endOfWeek(addDays(endOfWeek(now), 7));
+    } else if (expirationTimeframe.value === 'thisMonth') {
+        startDate = startOfMonth(now);
+        endDate = endOfMonth(now);
+    } else if (expirationTimeframe.value === 'nextMonth') {
+        startDate = startOfMonth(addDays(endOfMonth(now), 1));
+        endDate = endOfMonth(addDays(endOfMonth(now), 1));
+    }
+
     return products.value
-        .filter(product => differenceInDays(new Date(product.expiryDate), new Date()) > 0) // Exclude rows with Days Left <= 0
+        .filter(product => {
+            const expiryDate = new Date(product.expiryDate);
+            if (startDate && endDate) {
+                return expiryDate >= startDate && expiryDate <= endDate;
+            }
+            return true;
+        })
+        .filter(product => differenceInDays(new Date(product.expiryDate), now) > 0) // Exclude rows with Days Left <= 0
         .map(product => ({
             ...product,
             expiryDate: format(new Date(product.expiryDate), 'yyyy-MM-dd'),
             created_at: format(new Date(product.created_at), 'yyyy-MM-dd'),
-            isExpiringSoon: differenceInDays(new Date(product.expiryDate), new Date()) <= 10
+            isExpiringSoon: differenceInDays(new Date(product.expiryDate), now) <= daysLeftThreshold.value
         }));
 });
 
@@ -83,8 +133,13 @@ const bloodTypeCounts = computed(() => {
         'O+': 0,
         'O-': 0
     };
+    const now = new Date();
     products.value.forEach(product => {
-        if (counts[product.bloodType] !== undefined) {
+        if (
+            counts[product.bloodType] !== undefined &&
+            product.inventoryStatus === 'AVAILABLE' &&
+            differenceInDays(new Date(product.expiryDate), now) > 0
+        ) {
             counts[product.bloodType]++;
         }
     });
@@ -297,21 +352,34 @@ function printNearExpiryProducts() {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <div class="flex gap-4">
-                        <Button label="New" icon="pi pi-plus" severity="secondary" @click="openNew" />
-                        <Button label="Discard" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
-                        <Button label="Print Near Expiry" icon="pi pi-print" severity="secondary" @click="printNearExpiryProducts" />
-                        <Button label="Export to CSV file" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
-
+                    <div class="flex gap-2">
+                        <Button label="New" icon="pi pi-plus" severity="secondary" class="p-button-sm" @click="openNew" />
+                        <Button label="Discard" icon="pi pi-trash" severity="secondary" class="p-button-sm" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                        <Button label="Print Near Expiry" icon="pi pi-print" severity="secondary" class="p-button-sm" @click="printNearExpiryProducts" />
+                        <Button label="Export to CSV" icon="pi pi-upload" severity="secondary" class="p-button-sm" @click="exportCSV($event)" />
+                        <Button label="Edit Threshold" icon="pi pi-cog" severity="secondary" class="p-button-sm" @click="openThresholdDialog" />
                     </div>
                 </template>
                 <template #end>
-                    <!-- <input type="file" accept=".csv" @change="importCSV" style="display: none;" ref="fileInput" />
-                    <Button label="Import from CSV file" icon="pi pi-download" severity="secondary" @click="$refs.fileInput.click()" class="mr-2" /> -->
-                    <div class="flex gap-4">
-                        <Select v-model="filters.bloodType.value" :options="bloodTypeOptions" optionLabel="label" optionValue="value" placeholder="Filter by Blood Type" class="w-full md:w-1/3" />
-                        <Select v-model="filters.inventoryStatus.value" :options="inventoryStatusOptions" optionLabel="label" optionValue="value" placeholder="Filter by Status" class="w-full md:w-1/3" />
-                        <Select v-model="filters.bloodComponent.value" :options="bloodComponents" optionLabel="label" optionValue="value" placeholder="Filter by Blood Component" class="w-full md:w-1/2" />
+                    <div class="flex gap-2">
+                        <Select
+                            v-model="expirationTimeframe"
+                            :options="timeframeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Expiration Timeframe"
+                            class="w-full md:w-1/3 p-dropdown-sm"
+                        />
+                        <!--
+                        <DateRangePicker
+                            v-model="dateRange"
+                            placeholder="Date Range"
+                            class="w-full md:w-1/2 p-inputtext-sm"
+                        />
+                        -->
+                        <Select v-model="filters.bloodType.value" :options="bloodTypeOptions" optionLabel="label" optionValue="value" placeholder="Blood Type" class="w-full md:w-1/3 p-dropdown-sm" />
+                        <Select v-model="filters.inventoryStatus.value" :options="inventoryStatusOptions" optionLabel="label" optionValue="value" placeholder="Status" class="w-full md:w-1/3 p-dropdown-sm" />
+                        <Select v-model="filters.bloodComponent.value" :options="bloodComponents" optionLabel="label" optionValue="value" placeholder="Blood Component" class="w-full md:w-1/2 p-dropdown-sm" />
                     </div>
                 </template>
             </Toolbar>
@@ -340,33 +408,50 @@ function printNearExpiryProducts() {
                 </template>
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="bloodSerialNumber" header="Blood Serial Number" style="min-width: 12rem">
-                                    <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodSerialNumber }}</span>
-                    </template></Column>
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.bloodSerialNumber }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="bloodType" header="Blood Type" sortable style="min-width: 10rem">
-                                    <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodType }}</span>
-                    </template></Column>
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.bloodType }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="bloodComponent" header="Blood Component" sortable style="min-width: 10rem">
-                                    <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.bloodComponent }}</span>
-                    </template></Column>
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.bloodComponent }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="created_at" header="Date Added" sortable style="min-width: 10rem">
-                                    <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.created_at }}</span>
-                    </template></Column>
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.created_at }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="expiryDate" header="Expiration Date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.expiryDate }}</span>
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.expiryDate }}
+                        </span>
                     </template>
                 </Column>
                 <Column field="inventoryStatus" header="Status" sortable style="min-width: 10rem">
-                                    <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">{{ slotProps.data.inventoryStatus }}</span>
-                    </template></Column>
+                    <template #body="slotProps">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
+                            {{ slotProps.data.inventoryStatus }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="Days Left" header="Days Left" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon}">
+                        <span :class="{'text-red-500': slotProps.data.isExpiringSoon && slotProps.data.inventoryStatus === 'AVAILABLE'}">
                             {{ differenceInDays(new Date(slotProps.data.expiryDate), new Date()) <= 0 ? 'EXPIRED' : differenceInDays(new Date(slotProps.data.expiryDate), new Date()) }}
                         </span>
                     </template>
@@ -432,6 +517,19 @@ function printNearExpiryProducts() {
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
                 <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
+            </template>
+        </Dialog>
+
+        <Dialog v-model:visible="thresholdDialog" :style="{ width: '450px' }" header="Edit Days Left Warning Threshold" :modal="true">
+            <div class="flex flex-col gap-6">
+                <div>
+                    <label for="threshold" class="block font-bold mb-3">Days Left Warning Threshold</label>
+                    <InputNumber id="threshold" v-model="daysLeftThreshold" :min="1" placeholder="Enter number of days" class="w-full" />
+                </div>
+            </div>
+            <template #footer>
+                <Button label="Cancel" icon="pi pi-times" text @click="thresholdDialog = false" />
+                <Button label="Save" icon="pi pi-check" @click="saveThreshold(daysLeftThreshold)" />
             </template>
         </Dialog>
     </div>

@@ -48,7 +48,7 @@ export default {
   methods: {
     fetchAllUsage() {
       // Get total usage
-      fetch('https://api.bbimsbicol.com/api/sarima-predict')
+      fetch('http://127.0.0.1:8000/api/sarima-predict')
         .then(res => res.json())
         .then(data => {
           this.rawTotalUsage = data;
@@ -56,7 +56,7 @@ export default {
         });
 
       // Get component-wise usage
-      fetch('https://api.bbimsbicol.com/api/sarima-components')
+      fetch('http://127.0.0.1:8000/api/sarima-components')
         .then(res => res.json())
         .then(data => {
           this.rawComponentUsage = data;

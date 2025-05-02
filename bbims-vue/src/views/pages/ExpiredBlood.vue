@@ -68,19 +68,6 @@ onMounted(() => {
 <template>
   <div>
     <div class="card">
-      <div class="flex justify-between items-center mb-3">
-        <h4></h4>
-        <div class="flex gap-2">
-          <Button
-            label="Delete Selected"
-            icon="pi pi-trash"
-            severity="danger"
-            :disabled="!selectedExpired.length"
-            @click="confirmDelete(selectedExpired.map(item => item.id))"
-          />
-        </div>
-      </div>
-
       <DataTable
         ref="dt"
         v-model:selection="selectedExpired"
@@ -111,9 +98,11 @@ onMounted(() => {
         <Column field="bloodType" header="Blood Type" sortable />
         <Column field="bloodComponent" header="Component" sortable />
         <Column field="expiryDate" header="Expiry Date" sortable />
+        <Column field="remarks" header="Remarks"></Column>
+
         <Column :exportable="false" style="min-width: 8rem">
           <template #body="slotProps">
-            <Button icon="pi pi-trash" rounded outlined severity="danger" @click="confirmDelete([slotProps.data.id])" />
+            <!-- <Button icon="pi pi-trash" rounded outlined severity="danger" @click="confirmDelete([slotProps.data.id])" /> -->
           </template>
         </Column>
 
